@@ -7,7 +7,7 @@ class Activity:
     The Activity class represents a single activity,
     that is defined by a name, window name and a start time
     """
-    MAX_NAME_LEN = 25
+    MAX_NAME_LEN = 50
 
     def __init__(self, application, window_name, start_time, duration):
         # TODO: Remove the local import bellow
@@ -30,14 +30,38 @@ class Activity:
         t = time.gmtime(self.start_time)
         return "{:02d}:{:02d}:{:02d}".format(t.tm_hour, t.tm_min, t.tm_sec)
 
-    @staticmethod
-    def __tweak_window_name__(win_name):
+    def __tweak_window_name__(self, win_name):
         """
-        TODO: remove trailing app names from window names, e.g. 'New Tab - Chromium' to 'New Tab'
+        Modifies the window name:
+            - removes the app name
+            - truncates it if it exceeds the max length
+
         :param win_name: the window name
         :return: the modified window name
         """
-        return win_name[:Activity.MAX_NAME_LEN]
+
+        # removes the trailing app name from the window name (if necessary)
+        win_name = win_name.split()
+        if len(win_name) > 1 and win_name[-1].lower() == self.app_name.lower():
+            win_name = win_name[:-1]
+
+        # window names are mostly in format "[the current activity] - [app]"
+        # Removes the trailing dash if necessary
+        if len(win_name) > 1 and win_name[-1] == '-':
+            win_name = win_name[:-1]
+
+        win_name = ' '.join(win_name)
+
+        # cuts the last words off if the :param win_name: exceeds the maximum length
+        if len(win_name) > Activity.MAX_NAME_LEN:
+            win_name_short = win_name[:Activity.MAX_NAME_LEN]
+            if ' ' in win_name_short:
+                win_name = ' '.join(win_name_short.split()[:-1])
+            else:
+                win_name = win_name_short
+            win_name += '...'
+
+        return win_name
 
     @staticmethod
     def __tweak_app_name__(app_name):
@@ -47,8 +71,6 @@ class Activity:
         :param app_name: the application name
         :return: the modified application name
         """
-        # TODO: some apps tend to put lots of information into the app name, cut the useless data off
-        app_name = app_name[:20]
 
         # TODO: Remove the local import bellow
         from Analyzer.analyzer import SUBS_DICT
