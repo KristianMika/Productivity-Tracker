@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# idea folder
+.idea/
+
+# Activity archive
+archive/
